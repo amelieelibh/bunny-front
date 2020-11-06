@@ -147,7 +147,7 @@ export default function Tasks({userId}) {
                 <Grid item xs={12}>
                     <Grid container justify="center" spacing={8}>
                     {tasks.map((item, index) => (
-                        <BunnyCard key={`card-task-${index}`}
+                        <BunnyCard key={`card-task-${index}`} kkey={`card-task-${index}`}
                             user={item} title={"Tarea de: " + item.userId}
                             onDelete={deleteTask}
                             onUpdate={() => showUpdate(item)}

@@ -17,18 +17,18 @@ const useStyles = makeStyles({
 });
 
 export default function BunnyCard({title, main, detail, id, item, image, status,
-    key, onDelete = () => {}, onUpdate = () => {}, onClick = () => {}}) {
+    kkey, onDelete = () => {}, onUpdate = () => {}, onClick = () => {}}) {
     
       const classes = useStyles();
   
     return (
-      <Grid key={key + "-grid"} item>
-        <Card className={classes.root} key={`${key}-in`} onClick={onClick}>
+      <Grid key={kkey + "-grid"} item>
+        <Card className={classes.root} key={`${kkey}-in`} >
           <CardActionArea>
             <CardMedia
               className={classes.media}
               image={image}
-              title={title}
+              title={title} onClick={onClick}
             />
             <CardContent>
               <Typography gutterBottom variant="h5" component="h2">

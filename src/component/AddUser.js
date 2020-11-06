@@ -8,12 +8,22 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import User from "../model/User";
 
-export default function AddUser({ open, onCancel = () => {}, onSave = (user) => {} }) {
+export default function AddUser({ open, updating,
+    onCancel = () => {}, onSave = (user) => {} }) {
 
     const [show, setShow] = useState(open);
-    const [user, setUser] = useState(new User({name: ""}));
+    const [user, setUser] = useState(new User({id: 0, name: ""}));
 
     useEffect(() => setShow(open), [open]);
+    useEffect(() => {
+        if(updating){
+            // console.log("updating", updating);
+            setUser(new User({
+                id: updating.id,
+                name: updating.name
+            }));
+        }
+    }, [updating]);
 
     const onSetName = (e) => {
         setUser(new User({...user, name: e.target.value}));
@@ -32,7 +42,7 @@ export default function AddUser({ open, onCancel = () => {}, onSave = (user) => 
     return (
         <Dialog
             open={show}
-            onClose={handleClose}
+            onClose={() => handleClose(false)}
             aria-labelledby="add-user-dialog-title"
         >
             <DialogTitle id="add-user-dialog-title">Add User</DialogTitle>
@@ -40,6 +50,15 @@ export default function AddUser({ open, onCancel = () => {}, onSave = (user) => 
                 <DialogContentText>
                     Please enter data for new user
                 </DialogContentText>
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id="userId"
+                    label="User Id"
+                    type="text"
+                    fullWidth disabled
+                    value={user?.id}
+                />
                 <TextField
                     autoFocus
                     margin="dense"
@@ -52,7 +71,7 @@ export default function AddUser({ open, onCancel = () => {}, onSave = (user) => 
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose} color="primary">
+                <Button onClick={() => handleClose(false)} color="primary">
                     Cancel
                 </Button>
                 <Button onClick={() => handleClose(true)} color="primary">

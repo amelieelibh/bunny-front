@@ -39,6 +39,7 @@ const avatarImg = "https://icons.iconarchive.com/icons/papirus-team/papirus-stat
 export default function Users({}) {
 
     const [showAddUser, setShowAddUser] = useState(false);
+    const [updating, setUpdating] = useState();
     
     const [showMessage, setShowMessage] = useState(false);
     const [message, setMessage] = useState();
@@ -67,12 +68,14 @@ export default function Users({}) {
         dispatchUsers({type: "add", data: users});
     };
 
-    const addUser = async (newUser) => {
+    const saveUser = async (newUser) => {
         setShowAddUser(false);
         if(!newUser || !newUser.name){
             return;
         }
-        const user = await UsersApi.getInstance().createUser(newUser);
+        const user = updating ?
+            await UsersApi.getInstance().updateUser(newUser) :
+            await UsersApi.getInstance().createUser(newUser);
         console.log("create user", user);
         if(!user || user.err || user.error){
             setMsgSeverity("error");
@@ -83,7 +86,9 @@ export default function Users({}) {
         setMsgSeverity("success");
         setMessage(`User ${user.name} added!`);
         setShowMessage(true);
-        dispatchUsers({type: "add", data: user});
+
+        refresh();
+        // dispatchUsers({type: "add", data: user});
     };
 
     const deleteUser = async (userId) => {
@@ -107,21 +112,35 @@ export default function Users({}) {
     const closeMessage = () => {
         setShowMessage(false);
     };
+
+    const showNewUser = () => {
+        setUpdating();
+        setShowAddUser(true);
+    };
+
+    const showUpdate = (item) => {
+        setUpdating(new User({
+            id: item.id,
+            name: item.name, 
+        }));
+        setShowAddUser(true);
+    };
     
     
 
     return (
         <Container maxWidth="md" style={{ marginTop: 20 }}>
             <ViewTitle title="Users" />
-            <BunnyToolbar onAdd={() => setShowAddUser(true)} onUpdate={refresh}
+            <BunnyToolbar onAdd={showNewUser} onUpdate={refresh}
                 itemType="User" />
             
             {users && users.length > 0 ? (
                 <Grid item xs={12}>
                     <Grid container justify="center" spacing={8}>
                     {users.map((item, index) => (
-                        <BunnyCard user={item} key={`card-user-${index}`} 
+                        <BunnyCard user={item} key={`card-user-${index}`} kkey={`card-user-${index}`} 
                             onDelete={deleteUser} onClick={() => window.location.href = `/tasks/${item.id}`}
+                            onUpdate={() => showUpdate(item)}
                             image={avatarImg}
                             id={item.id} item={item}
                             title="Bunny User" main={`UserId: ${item.id}`} 
@@ -145,7 +164,8 @@ export default function Users({}) {
                     {message}
                 </Alert>
             </Snackbar>
-            <AddUser open={showAddUser} onCancel={() => setShowAddUser(false)} onSave={addUser} />
+            <AddUser open={showAddUser} updating={updating}
+                onCancel={() => setShowAddUser(false)} onSave={saveUser} />
         </Container>
     );
 }
